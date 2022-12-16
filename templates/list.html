@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="..\static\css\index.css" rel="stylesheet" />
     <title>Jogoteca</title>
   </head>
   <body>
@@ -19,7 +20,25 @@
             <tbody>
                 {% for jogo in jogos: %}
                 <tr>
-                    <td>{{ jogo }}</td>
+                    <td>{{ jogo.nome }}</td>
+                    <td>
+                        {% for categoria in jogo.categoria %}
+                        {% if categoria != jogo.categoria[-1] %} 
+                        <span class="muitos_valores">{{ categoria }},</span>
+                        {% else %}
+                        <span class="muitos_valores">{{ categoria }}</span>
+                        {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for console in jogo.console %}
+                        {% if console != jogo.console[-1] %} 
+                        <span class="muitos_valores">{{ console }},</span>
+                        {% else %}
+                        <span class="muitos_valores">{{ console }}</span>
+                        {% endif %}
+                        {% endfor %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
