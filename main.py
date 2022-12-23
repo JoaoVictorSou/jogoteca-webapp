@@ -42,6 +42,14 @@ def create_game():
 
     return redirect('/')
 
+@app.route('/logout')
+def logout():
+    session['usuario_logado'] = None
+
+    flash("Usuário desconectado.")
+
+    return redirect('/login')
+
 # Inicia servidor
 if __name__ == "__main__":
     app.run(host = '127.0.0.1', port=8080, debug=True)
