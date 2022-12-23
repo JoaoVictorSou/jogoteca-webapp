@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, flash, url_for, session, request
 from source.models.jogo import Jogo, lista_jogos
+from source.models.user import User, user_list
 
 # O __name__ faz referência ao próprio módulo.
 app = Flask(__name__)
@@ -13,23 +14,33 @@ def login():
 
 @app.route('/authenticate', methods = ['POST',])
 def authenticate():
-    # The None type converted
-    next_page = request.form.get('next')
-    next_page = next_page if next_page != "None" else None 
+    user_nickname = request.form['usuario']
+    
+    if user_nickname:
+        matched_user = None
 
-    if request.form['senha'] == 'alohomora':
-        session['usuario_logado'] = request.form['usuario']
-        flash('Usuário logado com sucesso!')
+        for user in user_list:
+            if user.nickname == user_nickname:
+                matched_user = user
         
-        print(type(next_page))
+        if matched_user:
+            next_page = request.form.get('next')
+            # The None type converted
+            next_page = next_page if next_page != "None" else None 
 
-        if next_page:
-            return redirect(f'/{next_page}')
-        
-        return redirect(url_for('index'))
+            if request.form['senha'] == matched_user.password:
+                session['usuario_logado'] = request.form['usuario']
+                flash('Usuário logado com sucesso!')
+                
+                print(type(next_page))
+
+                if next_page:
+                    return redirect(next_page)
+                
+                return redirect(url_for('index'))
     
     flash('Usuário não logado.')
-    return redirect(url_for('login'))
+    return redirect(url_for('login', next = next_page))
 
 @app.route('/logout')
 def logout():
