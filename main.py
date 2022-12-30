@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, flash, url_for, session, request
-from source.models.jogo import Jogo, lista_jogos
-from source.models.user import User, user_list
+from src.models.jogo import Jogo, lista_jogos
+from src.models.user import User, user_list
 
 # O __name__ faz referência ao próprio módulo.
 app = Flask(__name__)
@@ -14,8 +14,9 @@ def login():
 
 @app.route('/authenticate', methods = ['POST',])
 def authenticate():
-    user_nickname = request.form['usuario']
-    
+    user_nickname = request.form.get('usuario')
+    next_page = request.form.get('next')
+
     if user_nickname:
         matched_user = None
 
@@ -24,7 +25,6 @@ def authenticate():
                 matched_user = user
         
         if matched_user:
-            next_page = request.form.get('next')
             # The None type converted
             next_page = next_page if next_page != "None" else None 
 
