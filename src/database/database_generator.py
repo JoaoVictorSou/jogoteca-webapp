@@ -105,14 +105,17 @@ class Database():
             cursor.close()
       
       def database_exists(self, database_name):
-            query_database_exists = "SHOW DATABASES LIKE '%s'"
+            query_database_exists = "SHOW DATABASES LIKE %s"
 
             cursor = self.__conn.cursor()
             
-            cursor.execute(query_database_exists, database_name)
+            cursor.execute(query_database_exists, [database_name,])
+            
+            exists = True if cursor.fetchone() is not None else False
+            
             cursor.close()
 
-            return cursor.fetchone() 
+            return exists
       
 """
 conn.close()

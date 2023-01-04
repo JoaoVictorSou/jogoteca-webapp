@@ -13,8 +13,9 @@ app.secret_key = 'Nintendo'
 def testting_features():
     database = Database('localhost', 'root')
     response = database.to_connect(util_security.get_mysql_security())
-    
-    return response
+    response = database.database_exists('avarai')
+
+    return 't'
 
 @app.route('/login')
 def login():
