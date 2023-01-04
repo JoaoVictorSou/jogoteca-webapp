@@ -5,6 +5,10 @@ class Database():
       def __init__(self, host, user):
             self._host = host
             self._user = user
+      
+      @property
+      def conn(self):
+            return self.__conn
 
       def to_connect(self, password):
             try:
@@ -13,17 +17,21 @@ class Database():
                         user= self._user,
                         password= password
                   )
+            except mysql.connector.ProgrammingError as err:
+                  if err.errno == 1045:
+                        return {'message': err.msg, 'errno': err.errno}
+                  else:
+                        return {'message': f'MySQLConnectorProgrammingError: {err.errno}', 'code': '500'}
+
             except mysql.connector.Error as err:
-                  return err
+                  return {'messege': err.msg, 'errno': err.errno}
             
-            return '200'
+            return {'messege': 'Database connection worked', 'errno': None}
 
       def start_base(self):
-            cursor = conn.cursor()
+            cursor = self.__conn.cursor()
 
-            cursor.execute("DROP DATABASE IF EXISTS `jogoteca`;")
-
-            cursor.execute("CREATE DATABASE `jogoteca`;")
+            cursor.execute("CREATE DATABASE IF NOT EXISTS `jogoteca`;")
 
             cursor.execute("USE `jogoteca`;")
 
@@ -70,8 +78,9 @@ class Database():
 
             cursor.execute('select * from jogoteca.usuarios')
             print(' -------------  Usuários:  -------------')
+            
             for user in cursor.fetchall():
-            print(user[1])
+                  print(user[1])
 
             # inserindo jogos
             jogos_sql = 'INSERT INTO jogos (nome, categoria, console) VALUES (%s, %s, %s)'
@@ -88,12 +97,23 @@ class Database():
             cursor.execute('select * from jogoteca.jogos')
             print(' -------------  Jogos:  -------------')
             for jogo in cursor.fetchall():
-            print(jogo[1])
+                  print(jogo[1])
 
             # commitando se não nada tem efeito
-            conn.commit()
+            self.__conn.commit()
 
             cursor.close()
+      
+      def database_exists(self, database_name):
+            query_database_exists = "SHOW DATABASES LIKE '%s'"
+
+            cursor = self.__conn.cursor()
+            
+            cursor.execute(query_database_exists, database_name)
+            cursor.close()
+
+            return cursor.fetchone() 
+      
 """
 conn.close()
 """

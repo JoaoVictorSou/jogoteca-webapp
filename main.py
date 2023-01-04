@@ -1,11 +1,21 @@
 from flask import Flask, render_template, redirect, flash, url_for, session, request
 from src.models.jogo import Jogo, lista_jogos
 from src.models.user import User, user_list
+from src.database.database_generator import Database
+import src.util.security as util_security
 
 # O __name__ faz referência ao próprio módulo.
 app = Flask(__name__)
 app.secret_key = 'Nintendo'
+
 # Rotas
+@app.route('/testing_features') # Não vai para "produção"
+def testting_features():
+    database = Database('localhost', 'root')
+    response = database.to_connect(util_security.get_mysql_security())
+    
+    return response
+
 @app.route('/login')
 def login():
     next_page = request.args.get('next')
@@ -50,7 +60,6 @@ def logout():
 
     return redirect(url_for('login'))
 
-
 @app.route('/')
 def index():
     
@@ -67,7 +76,6 @@ def show_register_game_page():
 
 @app.route('/game/create', methods = ["POST",])
 def create_game():
-    print(request)
     nome = request.form['nome']
     categoria = request.form['categoria']
     console = request.form['console']
