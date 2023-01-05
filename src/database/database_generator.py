@@ -2,7 +2,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 class Database():
-      def __init__(self, host, user):
+      def __init__(self, host: str, user: str):
             self._host = host
             self._user = user
       
@@ -10,7 +10,7 @@ class Database():
       def conn(self):
             return self.__conn
 
-      def to_connect(self, password):
+      def to_connect(self, password: str):
             try:
                   self.__conn = mysql.connector.connect(
                         host= self._host,
@@ -26,7 +26,7 @@ class Database():
             except mysql.connector.Error as err:
                   return {'messege': err.msg, 'errno': err.errno}
             
-            return {'messege': 'Database connection worked', 'errno': None}
+            return {'message': 'Database connection worked', 'errno': None}
 
       def start_base(self):
             cursor = self.__conn.cursor()
@@ -104,7 +104,7 @@ class Database():
 
             cursor.close()
       
-      def database_exists(self, database_name):
+      def _check_database_exists(self, database_name: str):
             query_database_exists = "SHOW DATABASES LIKE %s"
 
             cursor = self.__conn.cursor()
@@ -116,6 +116,28 @@ class Database():
             cursor.close()
 
             return exists
+      
+      def _check_tables_exists(self, database_name: str, tables: list):
+            cursor = self.conn.cursor()
+
+            query_all_tables = f"SHOW TABLES IN {database_name}"
+
+            cursor.execute(query_all_tables)
+
+            tables_in_database = [table_database[0] for table_database in cursor.fetchall()]
+
+            cursor.close()
+
+            all_tables_exists = False
+
+            for table in tables:
+                  all_tables_exists = table in tables_in_database
+            
+            return all_tables_exists
+
+      def _check_application_database_integrity(self):
+            if self._check_database_exists('jogoteca'):
+                  pass
       
 """
 conn.close()
