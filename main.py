@@ -11,20 +11,30 @@ app.secret_key = 'Nintendo'
 # Rotas
 @app.route('/testing_features') # Não vai para "produção"
 def testting_features():
+    """
+        Essa rota server para pequenos testes de funcionamento de features
+    """
     database = Database('localhost', 'root')
-    response = database.to_connect(util_security.get_mysql_security())
-    response = database.database_exists('avarai')
+    print("Database conection: " + database.to_connect(util_security.get_mysql_security())['message'])
+    
+    print(f"print: {database._check_tables_exists('mysql', ['role_edges', 'columns_priv','adadssa'])}")
 
     return 't'
 
 @app.route('/login')
 def login():
+    """
+    Rota que disponibiliza página HTML de autenticação.
+    """
     next_page = request.args.get('next')
 
     return render_template(f'login.html', next_page = next_page)
 
 @app.route('/authenticate', methods = ['POST',])
 def authenticate():
+    """
+    Rota que cria a sessão para acessos com credenciais.
+    """
     user_nickname = request.form.get('usuario')
     next_page = request.form.get('next')
 
@@ -55,6 +65,9 @@ def authenticate():
 
 @app.route('/logout')
 def logout():
+    """
+    Rota para finalizar a sessão no servidor.
+    """
     session['usuario_logado'] = None
 
     flash("Usuário desconectado.")
@@ -63,11 +76,16 @@ def logout():
 
 @app.route('/')
 def index():
-    
+    """
+    Rota para uma página HTML com a lista de todos os jogos da aplicação.
+    """
     return render_template("list.html", titulo = 'Jogos', jogos = lista_jogos)
 
 @app.route('/game/register', methods = ["GET",])
 def show_register_game_page():
+    """
+    Rota que disponibiliza formulário HTML para acrescentar jogos na aplicação.
+    """
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         flash("Faça login antes de adicionar jogos.")
         
@@ -77,6 +95,9 @@ def show_register_game_page():
 
 @app.route('/game/create', methods = ["POST",])
 def create_game():
+    """
+    Rota que salva os jogos cadastrados para que possam ser acessados nos termos da aplicação.
+    """
     nome = request.form['nome']
     categoria = request.form['categoria']
     console = request.form['console']
