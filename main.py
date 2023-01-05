@@ -9,15 +9,15 @@ app = Flask(__name__)
 app.secret_key = 'Nintendo'
 
 # Rotas
-@app.route('/testing_features') # Não vai para "produção"
-def testting_features():
+@app.route('/test_features') # Não vai para "produção"
+def test_features():
     """
         Essa rota server para pequenos testes de funcionamento de features
     """
     database = Database('localhost', 'root')
     print("Database conection: " + database.to_connect(util_security.get_mysql_security())['message'])
     
-    print(f"print: {database._check_tables_exists('mysql', ['role_edges', 'columns_priv','adadssa'])}")
+    print(f"print: {database._check_tables_exists('mysql', ['role_edges', 'columns_priv'])}")
 
     return 't'
 
