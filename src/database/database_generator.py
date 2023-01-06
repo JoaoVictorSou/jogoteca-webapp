@@ -1,5 +1,6 @@
 import mysql.connector
 from mysql.connector import errorcode
+import warnings
 
 class Database():
       def __init__(self, host: str, user: str):
@@ -117,23 +118,29 @@ class Database():
 
             return exists
       
-      def _check_tables_exists(self, database_name: str, tables: list):
+      def _check_tables_exists(self, database_name: str, tables_list: list):
             cursor = self.conn.cursor()
 
             query_all_tables = f"SHOW TABLES IN {database_name}"
 
             cursor.execute(query_all_tables)
 
-            tables_in_database = [table_database[0] for table_database in cursor.fetchall()]
+            database_tables = [table_database[0] for table_database in cursor.fetchall()]
 
             cursor.close()
 
-            all_tables_exists = False
+            all_tables_exists = True
 
-            for table in tables:
-                  all_tables_exists = table in tables_in_database
+            if not tables_list:
+                  warnings.warn("WARN: THE TABLE LIST IN THE PARAMETERS OF CHECK DATABASE TABLES METHOD IS EMPATY.")
+
+            for table in tables_list:
+                  all_tables_exists &= (table in database_tables)
             
             return all_tables_exists
+
+      def _check_columns_in_database(self, database_name, columns_list):
+            pass
 
       def _check_application_database_integrity(self):
             if self._check_database_exists('jogoteca'):
