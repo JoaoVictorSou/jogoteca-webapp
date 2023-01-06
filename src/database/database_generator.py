@@ -12,6 +12,10 @@ class Database():
             return self.__conn
 
       def to_connect(self, password: str):
+            """
+            Método que cria uma conexão com o SGBD MySQL com base em uma senha informada nos parâmetros do método
+            e o IP e senha fornecidos na instância do objeto de conexão.
+            """
             try:
                   self.__conn = mysql.connector.connect(
                         host= self._host,
@@ -30,6 +34,9 @@ class Database():
             return {'message': 'Database connection worked', 'errno': None}
 
       def start_base(self):
+            """
+            Método que cria e verifica o banco de dados com a estrutura necessária para o funcionamento correto da aplicação.
+            """
             cursor = self.__conn.cursor()
 
             cursor.execute("CREATE DATABASE IF NOT EXISTS `jogoteca`;")
@@ -106,6 +113,10 @@ class Database():
             cursor.close()
       
       def _check_database_exists(self, database_name: str):
+            """
+            Método para verificar a existência de determinado banco de dados pelo seu título.
+            É consumido dentro da própria classe para testes de estruturação de dados.
+            """
             query_database_exists = "SHOW DATABASES LIKE %s"
 
             cursor = self.__conn.cursor()
@@ -119,6 +130,10 @@ class Database():
             return exists
       
       def _check_tables_exists(self, database_name: str, tables_list: list):
+            """
+            Método que verifica a existência de 'N' tabelas em derminado banco de dados.
+            É consumido dentro da própria classe para testes de estruturação de dados.
+            """
             cursor = self.conn.cursor()
 
             query_all_tables = f"SHOW TABLES IN {database_name}"
