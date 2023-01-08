@@ -1,6 +1,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 import warnings
+import pandas as pd
 
 class Database():
       def __init__(self, host: str, user: str):
@@ -154,8 +155,43 @@ class Database():
             
             return all_tables_exists
 
-      def _check_columns_in_database(self, database_name, columns_list):
-            pass
+      def _check_columns_in_database(self, database_name: str, table_name: str, columns_list: pd.DataFrame):
+            """
+            Método que verifica a existência de 'N' colunas em determinada tabela de determinado banco de dados.
+            O método necessita que o banco de dados e a tabela estejam criadas no banco. Esse comportamento de classe
+            é consumido na própria para tratamentos de integridade da aplicação.
+            """
+            cursor = self.conn.cursor()
+
+            cursor.execute(f"SHOW COLUMNS IN {database_name}.{table_name}")
+
+            # A consulta é colocada em um Dataframe, a coluna [0] são os nomes das colunas e a [1] os tipos; 
+            # o tipo costuma vir em bytes, então, a conversão é feita para não haver problema com o tratamento dos dados.
+            columns_name_and_type = pd.DataFrame([(column[0], str(column[1])) for column in cursor.fetchall()])
+            print(columns_name_and_type)
+
+            all_columns_exists = True
+            columns_not_exists = []
+            incorrect_type = []
+            
+            for column in columns_list:
+                  # Os nomes e tipos das colunas são separados para uma melhor visualização dos dados. A tupla garante uma imutabilidade, para que as associações não sejam perdidas.
+                  columns_names = tuple(columns_name_and_type[:][0].str.upper())
+                  columns_types = tuple(columns_name_and_type[:][1].str.upper())
+                  
+                  # Apenas se todas as colunas informadas nos parâmetros existirem, o valor será True para essa variável.
+                  all_columns_exists &= (column[0].upper() in columns_names)
+
+                  if column[0].upper() not in columns_names:
+                        columns_not_exists.append(column)
+                  else:
+                        pass
+                              
+            print("columns exists:", all_columns_exists)
+            print(columns_not_exists)
+
+            
+                  
 
       def _check_application_database_integrity(self):
             if self._check_database_exists('jogoteca'):

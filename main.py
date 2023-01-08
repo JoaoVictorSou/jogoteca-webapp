@@ -3,6 +3,7 @@ from src.models.jogo import Jogo, lista_jogos
 from src.models.user import User, user_list
 from src.database.database_generator import Database
 import src.util.security as util_security
+import pandas as pd
 
 # O __name__ faz referência ao próprio módulo.
 app = Flask(__name__)
@@ -18,6 +19,14 @@ def test_features():
     print("Database conection: " + database.to_connect(util_security.get_mysql_security())['message'])
     
     print(f"print: {database._check_tables_exists('mysql', ['role_edges', 'columns_priv'])}")
+
+    columns = pd.DataFrame(
+        [('Name', 'char'), ('Code', 'int')]
+    )
+
+    database._check_columns_in_database("world", "country", [('Nae', 'char'), ('Code', 'int')])
+
+    database.conn.close()
 
     return 't'
 
