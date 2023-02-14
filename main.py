@@ -1,12 +1,34 @@
 from flask import Flask, render_template, redirect, flash, url_for, session, request
 from src.models.jogo import Jogo, lista_jogos
 from src.models.user import User, user_list
-from src.database.database_generator import Database
+from flask_sqlalchemy import SQLAlchemy
 import src.util.security as util_security
+import os
 
 # O __name__ faz referência ao próprio módulo.
 app = Flask(__name__)
-app.secret_key = 'Nintendo'
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    "{sgbd}://{user}:{security}@{host}/{database}".format(
+    sgbd = 'mysql+mysqlconnector',
+    user = os.environ.get("MYSQL_TEST_DATABASE_USER"),
+    security = os.environ.get("MYSQL_TEST_DATABASE_SECURITY"),
+    host = os.environ.get("MYSQL_TEST_DATABASE_HOST"),
+    database = 'jogoteca'
+)
+print(app.config['SQLALCHEMY_DATABASE_URI'])
+
+db = SQLAlchemy(app)
+
+class Game(db.Model):
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    nome = db.Column(db.String(50), nullable = False)
+    categoria = db.Column(db.String(40), nullable = False)
+    console = db.Column(db.String(20), nullable = False)
+
+    def __repr__(self) -> str:
+        return "<Name %r>" % self.name
 
 # Rotas
 @app.route('/test_features') # Não vai para "produção"
