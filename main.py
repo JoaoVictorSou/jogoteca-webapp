@@ -1,6 +1,4 @@
 from flask import Flask, render_template, redirect, flash, url_for, session, request
-from src.models.jogo import Jogo, lista_jogos
-from src.models.user import User, user_list
 from flask_sqlalchemy import SQLAlchemy
 import src.util.security as util_security
 import os
@@ -17,18 +15,22 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
     host = os.environ.get("MYSQL_TEST_DATABASE_HOST"),
     database = 'jogoteca'
 )
-print(app.config['SQLALCHEMY_DATABASE_URI'])
 
 db = SQLAlchemy(app)
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    nome = db.Column(db.String(50), nullable = False)
-    categoria = db.Column(db.String(40), nullable = False)
+    name = db.Column(db.String(50), nullable = False)
+    category = db.Column(db.String(40), nullable = False)
     console = db.Column(db.String(20), nullable = False)
 
     def __repr__(self) -> str:
         return "<Name %r>" % self.name
+
+class User(db.Model):
+    nickname = db.Column(db.String(8), primary_key = True)
+    name = db.Column(db.String(20), nullable = False)
+    password = db.Column(db.String(200), nullable = False)
 
 # Rotas
 @app.route('/test_features') # Não vai para "produção"
@@ -61,17 +63,13 @@ def authenticate():
     next_page = request.form.get('next')
 
     if user_nickname:
-        matched_user = None
-
-        for user in user_list:
-            if user.nickname == user_nickname:
-                matched_user = user
+        match_user = User.query.filter_by(nickname = user_nickname).first()
         
-        if matched_user:
+        if match_user:
             # The None type converted
             next_page = next_page if next_page != "None" else None 
 
-            if request.form['senha'] == matched_user.password:
+            if request.form['senha'] == match_user.password:
                 session['usuario_logado'] = request.form['usuario']
                 flash('Usuário logado com sucesso!')
                 
@@ -90,18 +88,23 @@ def logout():
     """
     Rota para finalizar a sessão no servidor.
     """
-    session['usuario_logado'] = None
+    if session['usuario_logado']:
+        session['usuario_logado'] = None
 
-    flash("Usuário desconectado.")
-
-    return redirect(url_for('login'))
-
+        flash("Usuário desconectado.")
+        return redirect(url_for('login'))
+    else:
+        flash("Não há conexão para ser desfeita.")
+        return redirect(url_for('login'))
+    
 @app.route('/')
 def index():
     """
     Rota para uma página HTML com a lista de todos os jogos da aplicação.
     """
-    return render_template("list.html", titulo = 'Jogos', jogos = lista_jogos)
+    game_list = Game.query.order_by(Game.id)
+
+    return render_template("list.html", title = 'Jogos', games = game_list)
 
 @app.route('/game/register', methods = ["GET",])
 def show_register_game_page():
@@ -120,13 +123,19 @@ def create_game():
     """
     Rota que salva os jogos cadastrados para que possam ser acessados nos termos da aplicação.
     """
-    nome = request.form['nome']
-    categoria = request.form['categoria']
+    name = request.form['nome']
+    category = request.form['categoria']
     console = request.form['console']
 
-    lista_jogos.append(
-        Jogo(nome, categoria, console)
+
+    new_game = Game(
+        name = name,
+        category = category,
+        console = console
     )
+
+    db.session.add(new_game)
+    db.session.commit()
 
     return redirect('/')
 

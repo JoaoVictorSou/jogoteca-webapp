@@ -25,20 +25,20 @@ cursor.execute("USE `jogoteca`;")
 
 # criando tabelas
 TABLES = {}
-TABLES['Jogos'] = ('''
-      CREATE TABLE `jogos` (
+TABLES['Game'] = ('''
+      CREATE TABLE `Game` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
-      `nome` varchar(50) NOT NULL,
-      `categoria` varchar(40) NOT NULL,
+      `name` varchar(50) NOT NULL,
+      `category` varchar(40) NOT NULL,
       `console` varchar(20) NOT NULL,
       PRIMARY KEY (`id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;''')
 
-TABLES['Usuarios'] = ('''
-      CREATE TABLE `usuarios` (
-      `nome` varchar(20) NOT NULL,
+TABLES['User'] = ('''
+      CREATE TABLE `User` (
+      `name` varchar(20) NOT NULL,
       `nickname` varchar(8) NOT NULL,
-      `senha` varchar(100) NOT NULL,
+      `password` varchar(100) NOT NULL,
       PRIMARY KEY (`nickname`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;''')
 
@@ -56,7 +56,7 @@ for tabela_nome in TABLES:
             print('OK')
 
 # inserindo usuarios
-usuario_sql = 'INSERT INTO usuarios (nome, nickname, senha) VALUES (%s, %s, %s)'
+usuario_sql = 'INSERT INTO User (name, nickname, password) VALUES (%s, %s, %s)'
 usuarios = [
       ("Bruno Divino", "BD", "alohomora"),
       ("Camila Ferreira", "Mila", "paozinho"),
@@ -64,13 +64,13 @@ usuarios = [
 ]
 cursor.executemany(usuario_sql, usuarios)
 
-cursor.execute('select * from jogoteca.usuarios')
+cursor.execute('select * from jogoteca.User')
 print(' -------------  Usuários:  -------------')
 for user in cursor.fetchall():
     print(user[1])
 
 # inserindo jogos
-jogos_sql = 'INSERT INTO jogos (nome, categoria, console) VALUES (%s, %s, %s)'
+jogos_sql = 'INSERT INTO Game (name, category, console) VALUES (%s, %s, %s)'
 jogos = [
       ('Tetris', 'Puzzle', 'Atari'),
       ('God of War', 'Hack n Slash', 'PS2'),
@@ -81,7 +81,7 @@ jogos = [
 ]
 cursor.executemany(jogos_sql, jogos)
 
-cursor.execute('select * from jogoteca.jogos')
+cursor.execute('select * from jogoteca.Game')
 print(' -------------  Jogos:  -------------')
 for jogo in cursor.fetchall():
     print(jogo[1])
