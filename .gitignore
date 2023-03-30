@@ -2,3 +2,5 @@ venv/
 __pycache__/
 .idea/
 src/util/security.py
+# Ignore dynaconf secret files
+.secrets.*
