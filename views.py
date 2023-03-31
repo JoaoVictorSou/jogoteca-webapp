@@ -44,6 +44,47 @@ def create_game():
 
     return redirect('/')
 
+@app.route('/game/edit/<int:id>', methods=("GET",))
+def edit_game_page(id):
+    if session.get('usuario_logado'):
+        game = Game.query.get(id)
+        print(game)
+        if game:
+            return render_template(
+                'edit-game.html',
+                game = game
+            )
+        else:
+            flash('Você só pode editar um jogo que esteja cadastrado.')
+            return redirect(url_for('index'))
+    else:
+        flash('Você precisa estar logado primeiro!')
+        return redirect(url_for('login', next = 'game/edit'))
+
+@app.route('/game/edit', methods=('POST',))
+def edit_game_process():
+    if session.get('usuario_logado'):
+        id = request.form.get('id')
+        game = Game.query.get(id)
+
+        if game:
+            game.name = request.form.get('nome')
+            game.category = request.form.get('categoria')
+            game.console = request.form.get('console')
+
+            db.session.add(game)
+            db.session.commit()
+
+            flash('Jogo alterado!')
+            return redirect(url_for('index'))
+        else:
+            flash('Não existe jogo correspondente ao ID informado.')
+            return redirect(url_for('index'))
+    else:
+        flash("É necessário estar logado para a alteração de dados.")
+        return redirect(url_for('index'))
+
+
 @app.route('/login')
 def login():
     """
@@ -73,7 +114,8 @@ def authenticate():
                 flash('Usuário logado com sucesso!')
                 
                 print(type(next_page))
-
+                
+                print(next_page)
                 if next_page:
                     return redirect(next_page)
                 
