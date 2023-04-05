@@ -31,7 +31,8 @@ def create_game():
     name = request.form['nome']
     category = request.form['categoria']
     console = request.form['console']
-
+    game_image = request.files.get('game_image')
+    upload_path = app.config['UPLOAD_PATH']
 
     new_game = Game(
         name = name,
@@ -41,6 +42,9 @@ def create_game():
 
     db.session.add(new_game)
     db.session.commit()
+
+    if game_image:
+        game_image.save(f'{upload_path}/capa-{new_game.id}.jpg')
 
     return redirect('/')
 
