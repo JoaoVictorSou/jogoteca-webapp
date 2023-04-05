@@ -59,7 +59,7 @@ def edit_game_page(id):
             return redirect(url_for('index'))
     else:
         flash('Você precisa estar logado primeiro!')
-        return redirect(url_for('login', next = 'game/edit'))
+        return redirect(url_for('login', next = f'game/edit/{id}'))
 
 @app.route('/game/edit', methods=('POST',))
 def edit_game_process():
@@ -84,6 +84,17 @@ def edit_game_process():
         flash("É necessário estar logado para a alteração de dados.")
         return redirect(url_for('index'))
 
+@app.route('/game/remove/<int:id>', methods=('GET',))
+def game_remove_process(id):
+    if session.get('usuario_logado'):
+        game = Game.query.filter_by(id=id).delete()
+        db.session.commit()
+        flash('Jogo deletado com sucesso!')
+        return redirect(url_for('index'))
+
+    
+    flash('Apenas usuários logados podem deletar registros!')
+    return redirect(url_for('login'))
 
 @app.route('/login')
 def login():
