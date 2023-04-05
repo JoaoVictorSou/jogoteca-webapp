@@ -1,4 +1,4 @@
-from flask import render_template, redirect, flash, url_for, session, request
+from flask import render_template, redirect, flash, url_for, session, request, send_from_directory
 from models import Game, User
 from main import app, db
 
@@ -95,10 +95,18 @@ def game_remove_process(id):
         db.session.commit()
         flash('Jogo deletado com sucesso!')
         return redirect(url_for('index'))
-
     
     flash('Apenas usuários logados podem deletar registros!')
     return redirect(url_for('login'))
+
+@app.route('/game/static/<filename>')
+def game_static(filename):
+    file_type = request.form.get('file_type')
+
+    if file_type == 'image':
+        return send_from_directory('uploads', filename)
+
+    return send_from_directory('uploads', filename)
 
 @app.route('/login')
 def login():
