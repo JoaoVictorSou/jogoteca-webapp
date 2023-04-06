@@ -1,5 +1,6 @@
 from flask import render_template, redirect, flash, url_for, session, request, send_from_directory
 from models import Game, User
+from helpers import image_recover
 from main import app, db
 
 @app.route('/')
@@ -52,11 +53,14 @@ def create_game():
 def edit_game_page(id):
     if session.get('usuario_logado'):
         game = Game.query.get(id)
-        print(game)
+
         if game:
+            game_image = image_recover(game.id)
+            game_image_name = image_recover(game.id)
             return render_template(
                 'edit-game.html',
-                game = game
+                game = game,
+                game_image = game_image
             )
         else:
             flash('Você só pode editar um jogo que esteja cadastrado.')
@@ -75,6 +79,11 @@ def edit_game_process():
             game.name = request.form.get('nome')
             game.category = request.form.get('categoria')
             game.console = request.form.get('console')
+            game_image = request.files.get('game_image')
+            upload_path = app.config['UPLOAD_PATH']
+
+            if game_image:
+                game_image.save(f"{upload_path}/capa-{game.id}.jpg")
 
             db.session.add(game)
             db.session.commit()
@@ -101,12 +110,12 @@ def game_remove_process(id):
 
 @app.route('/game/static/<filename>')
 def game_static(filename):
-    file_type = request.form.get('file_type')
-
+    file_type = request.args.get('file_type')
+    
     if file_type == 'image':
         return send_from_directory('uploads', filename)
 
-    return send_from_directory('uploads', filename)
+    return redirect(url_for('index'), code=400)
 
 @app.route('/login')
 def login():

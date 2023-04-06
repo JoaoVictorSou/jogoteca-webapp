@@ -1,6 +1,15 @@
 {% extends 'template.html' %}
 {% block conteudo %}
-    <form method="post" action="{{ url_for('edit_game_process') }}">
+    <form method="post" action="{{ url_for('edit_game_process') }}" enctype="multipart/form-data">
+        <figure class="img-thumbnail col-md-4">
+            <img class="img-fluid" src="{{ url_for('game_static', filename = game_image, file_type='image') }}" alt=""> <!-- O flask acaba utilizando essa estrutura para chegar na view criada -->
+            <figcaption>
+                <label class="fileContainer">
+                    Mudar capa
+                    <input type="file" id="game-image" name="game_image" accept=".jpg">
+                </label>
+            </figcaption>
+        </figure>
         <fieldset>
             <input type="hidden" value="{{ game.id }}" name="id">
             <div class="form-group">
