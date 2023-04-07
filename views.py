@@ -1,7 +1,8 @@
 from flask import render_template, redirect, flash, url_for, session, request, send_from_directory
 from models import Game, User
-from helpers import image_recover
+from helpers import image_recover, image_delete
 from main import app, db
+import time
 
 @app.route('/')
 def index():
@@ -34,6 +35,7 @@ def create_game():
     console = request.form['console']
     game_image = request.files.get('game_image')
     upload_path = app.config['UPLOAD_PATH']
+    timestamp = time.time()
 
     new_game = Game(
         name = name,
@@ -45,7 +47,7 @@ def create_game():
     db.session.commit()
 
     if game_image:
-        game_image.save(f'{upload_path}/capa-{new_game.id}.jpg')
+        game_image.save(f'{upload_path}/capa-{new_game.id}-{timestamp}.jpg')
 
     return redirect('/')
 
@@ -56,7 +58,6 @@ def edit_game_page(id):
 
         if game:
             game_image = image_recover(game.id)
-            game_image_name = image_recover(game.id)
             return render_template(
                 'edit-game.html',
                 game = game,
@@ -80,10 +81,12 @@ def edit_game_process():
             game.category = request.form.get('categoria')
             game.console = request.form.get('console')
             game_image = request.files.get('game_image')
+            timestamp = time.time()
             upload_path = app.config['UPLOAD_PATH']
 
             if game_image:
-                game_image.save(f"{upload_path}/capa-{game.id}.jpg")
+                image_delete(game.id)
+                game_image.save(f"{upload_path}/capa-{game.id}-{timestamp}.jpg")
 
             db.session.add(game)
             db.session.commit()
