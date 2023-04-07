@@ -1,6 +1,6 @@
 from flask import render_template, redirect, flash, url_for, session, request, send_from_directory
 from models import Game, User
-from helpers import image_recover, image_delete
+from helpers import image_recover, image_delete, GameForm
 from main import app, db
 import time
 
@@ -23,45 +23,66 @@ def show_register_game_page():
         
         return redirect(url_for('login', next='game/register'))
     
-    return render_template('new_game.html', titulo = 'Novo Jogo')
+    form = GameForm()
+
+    return render_template('new_game.html', titulo = 'Novo Jogo', form = form)
+    
 
 @app.route('/game/register', methods = ["POST",])
 def create_game():
     """
     Rota que salva os jogos cadastrados para que possam ser acessados nos termos da aplicação.
     """
-    name = request.form['nome']
-    category = request.form['categoria']
-    console = request.form['console']
-    game_image = request.files.get('game_image')
-    upload_path = app.config['UPLOAD_PATH']
-    timestamp = time.time()
+    if session.get('usuario_logado'):
+        form = GameForm(request.form) # Basta que o formulário seja utilizado na instância do JWT e não precisará mais acessar o request
+        if form.validate_on_submit():
+            name = form.name.data
+            category = form.category.data
+            console = form.console.data
+            game_image = request.files.get('game_image')
+            upload_path = app.config['UPLOAD_PATH']
+            timestamp = time.time()
 
-    new_game = Game(
-        name = name,
-        category = category,
-        console = console
-    )
+            new_game = Game(
+                name = name,
+                category = category,
+                console = console
+            )
 
-    db.session.add(new_game)
-    db.session.commit()
+            db.session.add(new_game)
+            db.session.commit()
 
-    if game_image:
-        game_image.save(f'{upload_path}/capa-{new_game.id}-{timestamp}.jpg')
+            if game_image:
+                game_image.save(f'{upload_path}/capa-{new_game.id}-{timestamp}.jpg')
 
-    return redirect('/')
+            flash('Jogo registrado!')
+            return redirect('/')
+        
+        else:
+            flash('Preencha todos os campos obrigatórios!')
+            return redirect(url_for('show_register_game_page'))
+    
+    flash("É necessário estar logado para registrar um jogo!")
+    return redirect(url_for('index'))
 
 @app.route('/game/edit/<int:id>', methods=("GET",))
 def edit_game_page(id):
     if session.get('usuario_logado'):
         game = Game.query.get(id)
-
+        
         if game:
             game_image = image_recover(game.id)
+            form = GameForm()
+
+            form.name.data = game.name
+            form.category.data = game.category
+            form.console.data = game.console
+            
             return render_template(
                 'edit-game.html',
-                game = game,
-                game_image = game_image
+                id = id,
+                game_image = game_image,
+                form = form
             )
         else:
             flash('Você só pode editar um jogo que esteja cadastrado.')
@@ -77,22 +98,27 @@ def edit_game_process():
         game = Game.query.get(id)
 
         if game:
-            game.name = request.form.get('nome')
-            game.category = request.form.get('categoria')
-            game.console = request.form.get('console')
-            game_image = request.files.get('game_image')
-            timestamp = time.time()
-            upload_path = app.config['UPLOAD_PATH']
+            form = GameForm(request.form)
+            if form.validate_on_submit():
+                game.name = form.name.data
+                game.category = form.category.data
+                game.console = form.console.data
+                game_image = request.files.get('game_image')
+                timestamp = time.time()
+                upload_path = app.config['UPLOAD_PATH']
 
-            if game_image:
-                image_delete(game.id)
-                game_image.save(f"{upload_path}/capa-{game.id}-{timestamp}.jpg")
+                if game_image:
+                    image_delete(game.id)
+                    game_image.save(f"{upload_path}/capa-{game.id}-{timestamp}.jpg")
 
-            db.session.add(game)
-            db.session.commit()
+                db.session.add(game)
+                db.session.commit()
 
-            flash('Jogo alterado!')
-            return redirect(url_for('index'))
+                flash('Jogo alterado!')
+                return redirect(url_for('index'))
+            else:
+                flash("Preencha os campos obrigatórios!")
+                return redirect(url_for('edit_game_page', id = id))
         else:
             flash('Não existe jogo correspondente ao ID informado.')
             return redirect(url_for('index'))

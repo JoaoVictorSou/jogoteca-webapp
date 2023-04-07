@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 # O __name__ faz referência ao próprio módulo.
 app = Flask(__name__)
 
@@ -7,6 +8,7 @@ app = Flask(__name__)
 app.config.from_pyfile('flask_config.py')
 
 db = SQLAlchemy(app)
+csrf = CSRFProtect(app)
 
 from views import *
 

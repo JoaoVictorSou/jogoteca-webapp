@@ -11,20 +11,22 @@
             </figcaption>
         </figure>
         <fieldset>
-            <input type="hidden" value="{{ game.id }}" name="id">
+            <input type="hidden" value="{{ id }}" name="id">
+            {{ form.csrf_token() }}
             <div class="form-group">
-                <label for="nome">Nome</label>
-                <input type="text" id="nome" name="nome" class="form-control" value="{{ game.name }}">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="categoria">Categoria</label>
-                <input type="text" id="categoria" name="categoria" class="form-control" value="{{ game.category }}">
+                {{ form.category.label(class="form-label") }}
+                {{ form.category(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="console">Console</label>
-                <input type="text" id="console" name="console" class="form-control" value="{{ game.console }}">
+                {{ form.console.label(class="form-label") }}
+                {{ form.console(class="form-control") }}
             </div>
-            <button type="submit" class="btn btn-primary btn-salvar">Salvar</button>
+            {{ form.save(class="btn btn-primary") }}
+            <a class="btn btn-secondary" href="{{ url_for('index') }}">Voltar</a>        
         </fieldset>
     </form>
 {% endblock %}
