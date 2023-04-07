@@ -1,6 +1,6 @@
 from flask import render_template, redirect, flash, url_for, session, request, send_from_directory
 from models import Game, User
-from helpers import image_recover, image_delete, GameForm
+from helpers import image_recover, image_delete, GameForm, UserForm
 from main import app, db
 import time
 
@@ -151,27 +151,30 @@ def login():
     """
     Rota que disponibiliza página HTML de autenticação.
     """
+
+    form = UserForm()
+
     next_page = request.args.get('next')
 
-    return render_template(f'login.html', next_page = next_page)
+    return render_template(f'login.html', form = form, next_page = next_page)
 
 @app.route('/authenticate', methods = ['POST',])
 def authenticate():
     """
     Rota que cria a sessão para acessos com credenciais.
     """
-    user_nickname = request.form.get('usuario')
+    form = UserForm(request.form)
     next_page = request.form.get('next')
 
-    if user_nickname:
-        match_user = User.query.filter_by(nickname = user_nickname).first()
+    if form.validate_on_submit():
+        match_user = User.query.filter_by(nickname = form.nickname.data).first()
         
         if match_user:
             # The None type converted
             next_page = next_page if next_page != "None" else None 
 
-            if request.form['senha'] == match_user.password:
-                session['usuario_logado'] = request.form['usuario']
+            if form.password.data == match_user.password:
+                session['usuario_logado'] = form.nickname.data
                 flash('Usuário logado com sucesso!')
                 
                 print(type(next_page))

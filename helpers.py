@@ -1,9 +1,26 @@
 import os
 from  main import app
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, validators
+from wtforms import StringField, SubmitField, PasswordField, validators
 
 # Forms
+class UserForm(FlaskForm):
+    nickname = StringField(
+        "Nickname", 
+        [
+            validators.DataRequired(),
+            validators.Length(min=1, max=8)
+        ]
+    )
+    password = PasswordField(
+        "Senha",
+        [
+            validators.DataRequired(),
+            validators.Length(min=1, max=100)
+        ] 
+    )
+    login = SubmitField("Login")
+
 class GameForm(FlaskForm):
     """
     Essa classe deve representar o formulário da aplicação. 

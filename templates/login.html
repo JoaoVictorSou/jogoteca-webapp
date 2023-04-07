@@ -4,10 +4,17 @@
 <div class="container">
     <h1>Faça seu login</h1>
     <form method="POST" action="{{ url_for('authenticate') }}">
+        {{ form.csrf_token() }}
         <input type="hidden" name = "next" value="{{ next_page }}" />
-        <p><label>Nome de usuário:</label> <input class="form-control" type="text" name="usuario" required></p>
-        <p><label>Senha:</label> <input class="form-control" type="password" name="senha" required></p>
-        <p><button class="btn btn-primary" type="submit">Entrar</button></p>
+        <div class="form-group">
+            {{ form.nickname.label(class="form-label") }}
+            {{ form.nickname(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+        </div>
+        {{ form.login(class="btn btn-primary") }}
     </form>
     <a class="btn btn-secondary" href="{{ url_for('index') }}">Voltar</a>        
 </div>
