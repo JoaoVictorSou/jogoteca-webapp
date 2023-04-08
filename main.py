@@ -10,7 +10,8 @@ app.config.from_pyfile('flask_config.py')
 db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
 
-from views import *
+from views_game import *
+from views_user import *
 
 # Inicia servidor
 if __name__ == "__main__":
