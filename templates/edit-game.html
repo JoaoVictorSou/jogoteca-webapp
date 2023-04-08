@@ -1,7 +1,7 @@
 {% extends 'template.html' %}
 {% block conteudo %}
-    <form method="post" action="{{ url_for('edit_game_process') }}" enctype="multipart/form-data">
-        <figure class="img-thumbnail col-md-4">
+    <form class="formularioJogo" method="post" action="{{ url_for('edit_game_process') }}" enctype="multipart/form-data">
+        <figure class="img-thumbnail col-md-4 formularioImagem">
             <img class="img-fluid" src="{{ url_for('game_static', filename = game_image, file_type='image') }}" alt=""> <!-- O flask acaba utilizando essa estrutura para chegar na view criada -->
             <figcaption>
                 <label class="fileContainer">
@@ -13,20 +13,22 @@
         <fieldset>
             <input type="hidden" value="{{ id }}" name="id">
             {{ form.csrf_token() }}
-            <div class="form-group">
+            <div class="form-group inputBox">
                 {{ form.name.label(class="form-label") }}
                 {{ form.name(class="form-control") }}
             </div>
-            <div class="form-group">
+            <div class="form-group inputBox">
                 {{ form.category.label(class="form-label") }}
                 {{ form.category(class="form-control") }}
             </div>
-            <div class="form-group">
+            <div class="form-group inputBox">
                 {{ form.console.label(class="form-label") }}
                 {{ form.console(class="form-control") }}
             </div>
-            {{ form.save(class="btn btn-primary") }}
-            <a class="btn btn-secondary" href="{{ url_for('index') }}">Voltar</a>        
+            <div class="form-group buttons">
+                {{ form.save(class="btn btn-primary") }}
+                <a class="btn btn-secondary" href="{{ url_for('index') }}">Voltar</a>
+            </div>        
         </fieldset>
     </form>
 {% endblock %}
