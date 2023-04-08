@@ -2,6 +2,7 @@ from main import app
 from flask import render_template, redirect, flash, url_for, session, request
 from models import User
 from helpers import UserForm
+from flask_bcrypt import check_password_hash
 
 @app.route('/login')
 def login():
@@ -30,7 +31,8 @@ def authenticate():
             # The None type converted
             next_page = next_page if next_page != "None" else None 
 
-            if form.password.data == match_user.password:
+            password_check = check_password_hash(match_user.password, form.password.data)
+            if password_check:
                 session['usuario_logado'] = form.nickname.data
                 flash('Usuário logado com sucesso!')
                 
